@@ -7,11 +7,14 @@
 % Steps to compile: latex latex latex
 %
 % For tracking purposes => this is v1.0 - Apr. 2013
-
 \documentclass{ar-1col}
+\usepackage{natbib}
 
 \setcounter{secnumdepth}{4}
-% \usepackage{url}
+\usepackage{url}
+
+% preferred fontsize
+\newcommand{\mysize}{\fontsize{12}{14}\selectfont}
 
 % Metadata Information
 \jname{Xxxx. Xxx. Xxx. Xxx.}
@@ -59,7 +62,7 @@ galaxies: evolution, methods: data analysis, methods: Bayesian non-parametric
 
 % Heading 1
 \section{INTRODUCTION}
-improvement of Photometry data on redshift rage 3-4
+improvement of Photometry data on redshift rage 3-4.
 
 
 % Heading 2
@@ -78,6 +81,21 @@ This is dummy text. This is dummy text. This is dummy text. This is dummy text.
 
 % Heading 3
 \section{BAYESIAN MACHINE LEARNING FOR MODELING SPECTRAL DATA}
+
+Bayesian machine learning is a branch of machine learning which aims to solve machine learning problems in a Bayesian perspective. Instead of optimizing the parameters of interest from data using an empirical loss function (e.g., a least-squared function), Bayesian methods build generative models to randomly sample data from parameters and try to maximize the likelihood between observed data and hidden parameters \citep{Barber2012}.
+
+The difference between Bayesian statistics and Bayesian ``machine learning'' is that Bayesian ``machine learning'' is trying to approximate {\it non-linear} functions \citep{Bishop2003}. After the publish of \citet{Rasmussen2005}, learning unknown complicated functions from observed data using {\it Gaussian processes} (\textsc{gp}) became popular. 
+
+A {\it Gaussian process} is a bunch of random variables, and any finite subset of these random variables is a joint Gaussian distribution \citep{Rasmussen2005}. \textsc{gp} could be a powerful tool to model any kind of functional data (continuous data) in a non-parametric way. By non-parametric, it actually means we use infinite many parameters to describe our function \citep{Gelman04}. \textsc{gp} could be treated as a random function (or a stochastic process) which draws samples from the n-dimensional distribution, 
+
+\begin{equation}
+    \mu(x_1), ..., \mu(x_n) \sim Normal((m(x_1), ..., m(x_n)), K(x_1, ..., x_n))
+    \label{eq:GP}
+\end{equation}
+
+
+
+\citep{Garnett17}
 
 \subsection{Gaussian Processes for Modeling Spectra}
 
@@ -112,14 +130,16 @@ This is dummy text. This is dummy text. This is dummy text. This is dummy text.
 Acknowledgements, general annotations, funding.
 
 % References
-\begin{thebibliography}{00}
+\bibliographystyle{ar-style2}
+\bibliography{sample}
+% \begin{thebibliography}{00}
 
-\bibitem[Acevedo \& Fitzjarrald(2001)]{Acevedo:01}
-Acevedo O, Fitzjarrald D. 2001.
-\textit{J. Atmos. Sci.} 58:2650--67
+% \bibitem[Acevedo \& Fitzjarrald(2001)]{Acevedo:01}
+% Acevedo O, Fitzjarrald D. 2001.
+% \textit{J. Atmos. Sci.} 58:2650--67
 
 
-\end{thebibliography}
+% \end{thebibliography}
 
 
 \end{document}

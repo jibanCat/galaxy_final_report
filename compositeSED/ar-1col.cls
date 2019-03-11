@@ -34,7 +34,7 @@
 \ProvidesClass{ar}[2013/03/07 v1.1 Standard LaTeX document class]
 %
 \newif\if@restonecol
-\newif\if@DotinEqNum
+%\newif\if@DotinEqNum
 %
 % Global Variable Declaration
 %
@@ -48,7 +48,7 @@
 % Font size declaration
 %
 \def\rhfont{\fontsize{7.5}{7.5}\itshape\selectfont}
-\def\titlefont{\fontsize{19}{24}\selectfont\bfseries\leftskip14.25pc\rightskip0\p@ plus1fill}
+\def\titlefont{\fontsize{20}{24}\selectfont\bfseries\leftskip14.25pc\rightskip0\p@ plus1fill}
 \def\authorfont{\fontsize{12}{15}\selectfont\bfseries\leftskip14.25pc\rightskip0\p@ plus1fill\mathversion{bold}}
 \def\abstractfont{\fontsize{9}{12}\selectfont}
 \def\keywordsfont{\fontsize{9}{12}\selectfont\rightskip0\p@ plus1fill\mathversion{normal}}
@@ -99,7 +99,7 @@
     \setlength\paperheight {\paperwidth}%
     \setlength\paperwidth  {\@tempdima}}
 \DeclareOption{fleqn}{\input{fleqn.clo}}
-\DeclareOption{ChEqNum}{\global\@DotinEqNumtrue}
+%\DeclareOption{ChEqNum}{\global\@DotinEqNumtrue}
 \ExecuteOptions{letterpaper}
 \ProcessOptions
 %
@@ -238,7 +238,7 @@
 %
   \def\ps@headings{%
       \let\@mkboth\@gobbletwo
-      \def\@oddfoot{\hbox to\typewidth{\hfill\rhfont www.annualreviews.org\kern3.5\p@{\arblcirc}\kern3.5\p@\rightmark\hbox to \extramargin{\hskip1pc\foliofont\thepage\hfill}}}%
+      \def\@oddfoot{\hbox to\typewidth{\hfill\rhfont github.com/jibanCat/galaxy\_final\_report\kern3.5\p@{\arblcirc}\kern3.5\p@\rightmark\hbox to \extramargin{\hskip1pc\foliofont\thepage\hfill}}}%
       \def\@evenfoot{\hbox to\typewidth{\hspace*{-\extramargin}\hbox to \extramargin{\hfill\foliofont\thepage\hskip1pc}\rhfont\leftmark\hss}}
       \def\@evenhead{}%
       \def\@oddhead{}%
@@ -331,7 +331,8 @@
 \def\firstpagenote#1{\gdef\@firstpagenote{#1}}\firstpagenote{}%
 \def\journalinfo{{\jinfofont%
     \@jname\ \@jyear. \@jvol:\@fstpage--\@endpage\endgraf%
-    \ifx\@doi\empty\else\vskip6\p@ This article's doi:\break \@doi\endgraf\vskip6\p@\fi%
+    %\ifx\@doi\empty\else\vskip6\p@ This article's doi:\break \@doi\endgraf\vskip6\p@\fi%
+    \ifx\@doi\empty\else\vskip6\p@ https://doi.org/\@doi\endgraf\vskip6\p@\fi%
     Copyright\ \copyright\ \@jyear\ by Annual Reviews.\endgraf All rights reserved\endgraf%
     \ifx\@firstpagenote\@empty\else\vskip6\p@\@firstpagenote\endgraf\fi%
 }}
@@ -947,7 +948,7 @@
     \def\bibitem@fin{\@ifxundefined\@bibstop{}{\csname bibitem@\@bibstop\endcsname}\reset@font\normalfont\bibliofont}%
   }{\def\@cite#1#2{({#1\if@tempswa , #2\fi})}}%
 %
-\if@DotinEqNum%
+%\if@DotinEqNum%
   \@ifpackageloaded{amsmath}{%
     %\def\tagform@#1{\maketag@@@{(\ignorespaces#1\unskip\@@italiccorr)}}
     \def\tagform@#1{\maketag@@@{\ignorespaces#1\unskip.}}
@@ -955,7 +956,16 @@
     %\def\@eqnnum{{\normalfont \normalcolor (\theequation)}}
     \def\@eqnnum{{\normalfont \normalcolor \theequation.}}
   }%
-\fi% 
+%\fi% 
+%%
+\@ifpackageloaded{hyperref}{%
+  \def\@linkcolor{green}%
+  \def\termkey#1{\hyperlink{key#1}{#1}}%
+  \def\marginnoteentry#1#2{\par\addvspace{4\p@}\noindent{\fignum@color{\sffamily\bfseries#1:\hypertarget{key#1}{}}}\ #2\par}%
+}{%
+  \def\termkey#1{#1}%
+}
+%
 }
 %
 \def\@outputpage{%
@@ -1022,10 +1032,12 @@
 }
 \def\trimmarks{}%
 %
-\ifpdf%
-  \setlength{\pdfpagewidth}{8.5in}%
-  \setlength{\pdfpageheight}{11in}%
-\fi%
+\AtBeginDocument{%
+  \ifpdf%
+    \setlength{\pdfpagewidth}{8.5in}%
+    \setlength{\pdfpageheight}{11in}%
+  \fi%
+}%
 %%
 \endinput
 %%

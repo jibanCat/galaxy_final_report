@@ -80,28 +80,103 @@ This is dummy text. This is dummy text. This is dummy text. This is dummy text.
 \subsection{Composite Spectral Energy Distributions (SEDs)}
 
 % Heading 3
-\section{BAYESIAN MACHINE LEARNING FOR MODELING SPECTRAL DATA}
+\section{BAYESIAN MACHINE LEARNING FOR CLUSTERING AND MODELING SPECTRAL DATA}
 
-Bayesian machine learning is a branch of machine learning which aims to solve machine learning problems in a Bayesian perspective. Instead of optimizing the parameters of interest from data using an empirical loss function (e.g., a least-squared function), Bayesian methods build generative models to randomly sample data from parameters and try to maximize the likelihood between observed data and hidden parameters \citep{Barber2012}.
+Bayesian machine learning is a branch of machine learning which aims to solve machine learning problems in a Bayesian perspective. 
+Instead of optimizing the parameters of interest from data using an empirical loss function (e.g., a least-squared function), Bayesian methods build generative models to randomly sample data from parameters and try to maximize the likelihood between observed data and hidden parameters \citep{Barber2012}.
 
-The difference between Bayesian statistics and Bayesian ``machine learning'' is that Bayesian ``machine learning'' is trying to approximate {\it non-linear} functions \citep{Bishop2003}. After the publish of \citet{Rasmussen2005}, learning unknown complicated functions from observed data using {\it Gaussian processes} (\textsc{gp}) became popular. 
+The difference between Bayesian statistics and Bayesian ``machine learning'' is that Bayesian ``machine learning'' is trying to approximate {\it non-linear} functions \citep{Bishop2003}. 
+After the publish of \citet{Rasmussen2005}, learning unknown complicated functions from observed data using {\it Gaussian processes} (\textsc{gp}) became popular. 
 
-A {\it Gaussian process} is a bunch of random variables, and any finite subset of these random variables is a joint Gaussian distribution \citep{Rasmussen2005}. \textsc{gp} could be a powerful tool to model any kind of functional data (continuous data) in a non-parametric way. By non-parametric, it actually means we use infinite many parameters to describe our function \citep{Gelman04}. \textsc{gp} could be treated as a random function (or a stochastic process) which draws samples from the n-dimensional distribution, 
+
+\subsection{Modeling Spectral Data using Gaussian Processes (\textsc{gp})}
+
+A {\it Gaussian process} is a bunch of random variables, and any finite subset of these random variables is a joint Gaussian distribution \citep{Rasmussen2005}. \textsc{gp} could be a powerful tool to model any kind of functional data (continuous data) in a non-parametric way. 
+By non-parametric, it actually means we use infinite many parameters to describe our function \citep{Gelman04}. \textsc{gp} could be treated as a random function (or a stochastic process) which draws samples from the n-dimensional distribution, 
 
 \begin{equation}
-    \mu(x_1), ..., \mu(x_n) \sim Normal((m(x_1), ..., m(x_n)), K(x_1, ..., x_n))
+    \mu(x_1), ..., \mu(x_n) \sim Normal((m(x_1), ..., m(x_n)), K(x_1, ..., x_n)).
     \label{eq:GP}
 \end{equation}
 
+The construction of a \textsc{gp} could be considered as finding the mean function ($m(\vec x)$) and a suitable covariance function ($K(\vec x, \vec x')$). 
+In normal cases, a zero mean is usually used as a prior for \textsc{gp} regressions. For $K(\vec x, \vec x')$, pre-defined covariance functions (e.g., squared potential function $\exp{(\frac{-r^2}{2 \ell^2})}$) are often been implemented. 
+However, the usage of \textsc{gp} in modeling functional data will also be restricted by the intrinsic properties of the covariance functions.
+Learning a suitable covariance function is the most crucial part of machine learning in \textsc{gp}.
+
+Finding a suitable choice of covariance often reflects our interpretations of the characteristics of our data  \citep{Rasmussen2005}. 
+For example, the usage of the squared potential function $\exp{(\frac{-r^2}{2 \ell^2})}$ implies the assumption that we believe each point on the function would have less impact to each other if they are far away on the functional space.
+Therefore, we need a special kind of covariance function to suit our purpose of modeling spctral data.
+
+\citet{Garnett17} took a machine learning approach to learn the covariance function, with a wavelength range from Ly$_\infty$ to Ly$\alpha$, from training data (quasar spectra). 
+The optimization choice was to firstly decompose covariance matrix with \citep{Garnett2015},
+
+% decomposition of covariance
+\begin{equation}
+    \mathbf{K} = \mathbf{M}\mathbf{M}^{T},
+    \label{eq:decompose}
+\end{equation}
+and then use the first 10 principle components of the flux of quasar spectra, $\mathbf{Y}$, to constitute the matrix $\mathbf{M}$. 
+The optimization was done by maximizing the log likelihood, $\mathcal{L}$, of the data by given $\mathbf{M}$ and absorption noise $\omega$, 
+
+% log likelihood
+\begin{equation}
+    \mathcal{L}(\mathbf{M}, \omega) = \log{ p(\mathbf{Y} \mid \mathbf{\lambda}, \mathbf{\mu}, \mathbf{M}, \mathbf{N}, \omega, z_\mathrm{qso}, Model) }.
+\end{equation}
+
+The goal of optimizing above function is to find optimal covariance matrix, $\mathbf{M}$, and absorption parameter, $\omega$, with some given conditions. Those conditions are: a given mean vector $\mathbf{\mu}$, the noise on the spectra $\mathbf{N}$, the redshift of the \textsc{qso}, and with a given model. 
+In a perspective of generative modeling, optimizing the data likelihood implies we are trying to find a covariance matrix to better generate our spectral data. 
+
+% covariance for DLA
+\begin{figure}
+    \includegraphics[width=5in, height=5in]{images/covariance.pdf}
+    \caption{Covariance function for quasar spectra in \citet{Garnett17}}
+    \label{fig:covariance}
+\end{figure}
+
+The covariance matrix built in \citet{Garnett17} with a wavelength range from Ly$_\infty$ to Ly$\alpha$ is in Fig~\ref{fig:covariance}. 
+The scale in Fig\ref{fig:covariance} represents the strength of correlations between pairs of rest-frame wavelengths on the \textsc{qso} spectra.
+The features of Lyman series are distinct.
+The off-diagonal term demonstrates the correlations of pairs of corresponding emission lines.
+
+The mean function of \textsc{gp} modeling in \citet{Garnett17} is simply stacking the spectra of training data, 
+
+\begin{equation}
+    \mu_j = \mathrm{median } (y_{ij}),
+\end{equation}
+where $y_{ij}$ are the fluxes for spectrum. Fig~\ref{fig:mean_function} shows the mean function with a range from Ly$_\infty$ to Ly$\alpha$. 
+The features emission line of Lyman series are also visible in the figure.
+
+Generally, the \textsc{gp} model for spectral data could be described as
+\begin{equation}
+    p( \mathbf{y} \mid \mathbf{\lambda}, \mathbf{v}, \mathbf{\omega}, z, Model ) 
+    = Normal( \mathbf{y}; \mathbf{\mu}, \mathbf{K} + \mathbf{\Omega} + \mathbf{V} ), 
+\end{equation}
+where $\mathbf{y}$ is the observed flux of the spectrum, 
+$\mathbf{\lambda}$ is the spectroscopic grids we chose to bin the flux, 
+$\mathbf{v}$ is the instrumental noise given by the observed data (it is \textsc{sdss} \textsc{qso} catalogue \citep{SDSS09} in \citet{Garnett17}), $z$ is the redshift dependence of the \textsc{gp} model, and $\omega$ is the absorption redshift dependence (it was used to model
+ Ly$\alpha$ forest in \citet{Garnett17}). 
+ 
+ The beauty of generative modeling the spectrum using \textsc{gp} framework is that we are able to fully control the modeling of instrumental noise and redshift dependence uncertainties. 
+ In addition, the whole framework is transparent and flexible, which implies it is interpretable and future improvements are achievable. 
 
 
-\citep{Garnett17}
+% mean function for DLA
+\begin{figure}
+    \includegraphics[width=5in, height=1.5in]{images/mean_function.pdf}
+    \caption{Mean function for quasar spectra in \citet{Garnett17}}
+    \label{fig:mean_function}
+\end{figure}
 
-\subsection{Gaussian Processes for Modeling Spectra}
 
-\subsection{Bayesian Model Selection with Different Types of Galaxies}
-
-\subsection{Dirichlet Processes for Clustering}
+% GP summary Points
+\begin{summary}[SUMMARY POINTS]
+    \begin{enumerate}
+    \item \textit{Gaussian Processes}. A flexible Bayesian non-parametric framework which allows us to model any kind of function.
+    \item Learned covariance matrix $\mathbf{K}$. To model spectral data, we can use the covariance function via optimizing the covariance function using training data.
+    \end{enumerate}
+\end{summary}
+    
 
 \subsection{Possibility: Dirichlet Processes combined with Gaussian Process for Modeling Composite SEDs}
 
@@ -124,7 +199,7 @@ A {\it Gaussian process} is a bunch of random variables, and any finite subset o
 % \section*{DISCLOSURE STATEMENT}
 % If the authors have noting to disclose, the following statement will be used: The authors are not aware of any affiliations, memberships, funding, or financial holdings that
 % might be perceived as affecting the objectivity of this review. 
-
+ 
 % Acknowledgements
 \section*{ACKNOWLEDGMENTS}
 Acknowledgements, general annotations, funding.

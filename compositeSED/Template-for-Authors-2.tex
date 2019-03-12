@@ -30,7 +30,7 @@
 \markboth{Ho}{Composite SED Clustering}
 
 % Title
-\title{Composite Spectral Energy Distribution and Clustering Methods}
+\title{Composite Spectral Energy Distribution and Bayesian Machine Learning for Spectral Data}
 
 %Authors, affiliations address.
 \author{Ming-Feng Ho$^1$
@@ -38,6 +38,8 @@
 
 %Abstract
 \begin{abstract}
+
+    
 Composite SEDs and Bayesian non-parametric clustering.
 
 Photometry and medium bands: surveys
@@ -73,10 +75,6 @@ improvement of Photometry data on redshift rage 3-4.
 This is dummy text. 
 
 % Heading 2.2
-\subsection{Fitting Template of Spectral Energy Distributions (SEDs)}
-This is dummy text. This is dummy text. This is dummy text. This is dummy text.
-
-% Heading 2.3
 \subsection{Composite Spectral Energy Distributions (SEDs)}
 
 % Heading 3
@@ -88,16 +86,26 @@ Instead of optimizing the parameters of interest from data using an empirical lo
 The difference between Bayesian statistics and Bayesian ``machine learning'' is that Bayesian ``machine learning'' is trying to approximate {\it non-linear} functions \citep{Bishop2003}. 
 After the publish of \citet{Rasmussen2005}, learning unknown complicated functions from observed data using {\it Gaussian processes} (\textsc{gp}) became popular. 
 
-
+% Heading 3.1
 \subsection{Modeling Spectral Data using Gaussian Processes (\textsc{gp})}
 
 A {\it Gaussian process} is a bunch of random variables, and any finite subset of these random variables is a joint Gaussian distribution \citep{Rasmussen2005}. \textsc{gp} could be a powerful tool to model any kind of functional data (continuous data) in a non-parametric way. 
 By non-parametric, it actually means we use infinite many parameters to describe our function \citep{Gelman04}. \textsc{gp} could be treated as a random function (or a stochastic process) which draws samples from the n-dimensional distribution, 
 
+% draw samples from a GP
 \begin{equation}
     \mu(x_1), ..., \mu(x_n) \sim Normal((m(x_1), ..., m(x_n)), K(x_1, ..., x_n)).
     \label{eq:GP}
 \end{equation}
+
+% marginal note: GP
+\begin{marginnote}[120pt]
+    \entry{GP}: \textit{Gaussian Processes}
+    \entry{$\sim$ Normal}: Sampling from a Gaussian (normal) distribution
+    \entry{Bayesian ML}: Bayesian Machine Learning    
+    \entry{K}: Covariance function (matrix)
+    \entry{$\mu$}: Mean function
+\end{marginnote} 
 
 The construction of a \textsc{gp} could be considered as finding the mean function ($m(\vec x)$) and a suitable covariance function ($K(\vec x, \vec x')$). 
 In normal cases, a zero mean is usually used as a prior for \textsc{gp} regressions. For $K(\vec x, \vec x')$, pre-defined covariance functions (e.g., squared potential function $\exp{(\frac{-r^2}{2 \ell^2})}$) are often been implemented. 
@@ -139,8 +147,9 @@ The scale in Fig\ref{fig:covariance} represents the strength of correlations bet
 The features of Lyman series are distinct.
 The off-diagonal term demonstrates the correlations of pairs of corresponding emission lines.
 
-The mean function of \textsc{gp} modeling in \citet{Garnett17} is simply stacking the spectra of training data, 
+The mean function of \textsc{gp} modeling in \citet{Garnett17} can be simply obtained by stacking the training spectra, 
 
+% stacking QSO spectra
 \begin{equation}
     \mu_j = \mathrm{median } (y_{ij}),
 \end{equation}
@@ -148,6 +157,7 @@ where $y_{ij}$ are the fluxes for spectrum. Fig~\ref{fig:mean_function} shows th
 The features emission line of Lyman series are also visible in the figure.
 
 Generally, the \textsc{gp} model for spectral data could be described as
+% full model for spectral gaussian process
 \begin{equation}
     p( \mathbf{y} \mid \mathbf{\lambda}, \mathbf{v}, \mathbf{\omega}, z, Model ) 
     = Normal( \mathbf{y}; \mathbf{\mu}, \mathbf{K} + \mathbf{\Omega} + \mathbf{V} ), 
@@ -173,13 +183,62 @@ $\mathbf{v}$ is the instrumental noise given by the observed data (it is \textsc
 \begin{summary}[SUMMARY POINTS]
     \begin{enumerate}
     \item \textit{Gaussian Processes}. A flexible Bayesian non-parametric framework which allows us to model any kind of function.
-    \item Learned covariance matrix $\mathbf{K}$. To model spectral data, we can use the covariance function via optimizing the covariance function using training data.
+    \item Learned covariance matrix $\mathbf{K}$. To model spectral data, we can optimize the covariance matrix using training data to acquire customized covariance function of any given range of wavelengths.
     \end{enumerate}
 \end{summary}
     
 
-\subsection{Possibility: Dirichlet Processes combined with Gaussian Process for Modeling Composite SEDs}
+% Heading 3.2
+\subsection{Dirichlet Processes}
 
+The \textit{Dirichlet process} \citep{Teh2006} is a Bayesian non-parametric method to model infinite mixture models and also could be used for clustering. We haven't seen any application of \textit{Dirichlet processes} (\textsc{dp}) in spctral data clustering. 
+A recent astronomical application of \textsc{dp} is building a mixture model for binary neutron stars in gravitational-wave data \citep{Pozzo2018}. 
+Since we expect the application of \textsc{dp} in the clustering of spectral data is achievable in future, we decided to roughly review the basic concept of \textsc{dp} here.
+
+The \textsc{dp} is a stochastic process which is often used to model mixture models. 
+Each random sample in \textsc{dp} is itself a distribution, which means we can treat random samples of a \textsc{dp} as cluster centers of a mixture model. 
+Similar to \textsc{gp}, a finite subset of a \textsc{dp} could be described by Dirichlet distributions.
+
+To model the data $v$ using the Dirichlet mixture model,
+the clustering memberships could be described by the following conditional probability \citep{Barber2012}, 
+
+% indicator model
+\begin{equation}
+    p(v^{1:N} \mid \theta) = \sum_{z^{1:N}} p(v^{1:N} \mid z^{1:N}, \theta) p(z^{1:N}),
+    \label{eq:indicator}
+\end{equation}
+where $p(z^{1:N})$ gives the priors over each cluster and $\theta$ describe the parameters of the cluster model. 
+The choice of priors over clusters ($p(z^{1:N})$) is crucial
+
+
+% Dirichlet PGM
+\begin{figure}
+    \includegraphics[width=6in, height=3in]{images/Dirichlet.pdf}
+    \caption{The probabilistic graphical model of \textsc{dp} in plate notation in \citet{Barber2012}. The symbols here: $z$ is the indicator and $p(z^n)$ implies the prior over $n^{th}$ cluster; $v$ is data; $\theta$ is used to describe the parameters on the cluster model (the shared model) while $z$ could be treated as the hidden variable used to described component models (the individual models); $\pi$ here is the parameter of a Dirichlet distribution, which is used to describe distributions.}
+    \label{fig:Dirichlet}
+\end{figure}
+
+
+% Heading 3.2.1
+\subsubsection{Chinese Restaurant Process}
+
+The clustering property of \textsc{dp} is hard to understand simply via mathematical forms above. 
+However, there's an intuitive metaphor described in \citet{Teh2006} to mimic the process of drawing samples from \textsc{dp} using a real-life example: \textit{Chinese Restaurant process} (\textsc{crp}).
+
+The name of \textsc{crp} was developed in 1980's. \textsc{crp} is a process to describe the distribution over partitions.
+
+Now, imagine this: there are infinite number of round tables in a Chinese restaurant, and there are also infinite number of seats in each round table. 
+Each customer will come to the restaurant one by one (just like sampling). 
+Let's assume the first customer choose the first table.
+Which table would be next person choose?
+
+
+% figure: chinese restaurant
+\begin{figure}
+    \includegraphics[width=3in, height=1in]{images/chinese_restaurant.pdf}
+    \caption{An illustration of \textsc{crp} in \citet{Blei2007}.}
+    \label{fig:crp}
+\end{figure}
 
 % Summary Points
 \begin{summary}[SUMMARY POINTS]

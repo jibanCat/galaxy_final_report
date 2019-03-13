@@ -9,6 +9,7 @@
 % For tracking purposes => this is v1.0 - Apr. 2013
 \documentclass{ar-1col}
 \usepackage{natbib}
+\usepackage{algorithm2e}
 
 \setcounter{secnumdepth}{4}
 \usepackage{url}
@@ -76,6 +77,53 @@ This is dummy text.
 
 % Heading 2.2
 \subsection{Composite Spectral Energy Distributions (SEDs)}
+
+% Heading 2.2.1
+\subsubsection{Determine Redshifts using EAZY}
+
+% Heading 2.2.2
+\subsubsection{Grouping Method}
+
+% grouping algorithm
+\begin{algorithm}[H]
+    \KwData{Multi-wavelength photometry of galaxies within some redshift range}
+    \KwResult{Composite \textsc{sed}s of different galaxy types}
+    
+    % init: grabbing data
+    \tcp{Grab your data: fluxes and wavelengths}
+    $ \mathbf{F}, \Lambda \leftarrow $ Multi-photometry of galaxies
+    
+    % rest-frame bins: determine using synthetic photometric filters
+    \tcp{define 22 rest-frame filters with equal widths between 1\,226 \AA $ < \lambda < $ 49\,580 \AA}
+    $ Bin(\mathbf{\lambda}) \leftarrow \mathrm{MAP} \mathbf{\lambda} : \mathbf{\lambda}[\log_{10}{1226}: \frac{1}{22} (\log_{10}{49580} - \log_{10}{1226}) i] $
+    
+    % fit with EAZY: determine redshift
+    \tcp{look through each galaxy multi-wavelength vector, d, and fit with EAZY}
+    \For{$\mathbf{f} \leftarrow \mathbf{F}$}{
+        \tcp{fit with EAZY}
+        $ f_\textsc{sed}, z_{photo} \leftarrow EAZY(\mathbf{d}) $
+
+        \tcp{de-redshift using photo-z}
+
+    }
+
+    \While{not at end of this document}{
+     read current\;
+     \eIf{understand}{
+      go to next section\;
+      current section becomes this one\;
+      }{
+      go back to the beginning of current section\;
+     }
+    }
+
+    % short description
+    \caption{Grouping galaxies together based on \textsc{sed} shape}
+\end{algorithm}
+
+% Heading 2.2.3
+\subsubsection{Classification of Galaxy Types}
+
 
 % Heading 3
 \section{BAYESIAN MACHINE LEARNING FOR CLUSTERING AND MODELING SPECTRAL DATA}
@@ -167,8 +215,8 @@ $\mathbf{\lambda}$ is the spectroscopic grids we chose to bin the flux,
 $\mathbf{v}$ is the instrumental noise given by the observed data (it is \textsc{sdss} \textsc{qso} catalogue \citep{SDSS09} in \citet{Garnett17}), $z$ is the redshift dependence of the \textsc{gp} model, and $\omega$ is the absorption redshift dependence (it was used to model
  Ly$\alpha$ forest in \citet{Garnett17}). 
  
- The beauty of generative modeling the spectrum using \textsc{gp} framework is that we are able to fully control the modeling of instrumental noise and redshift dependence uncertainties. 
- In addition, the whole framework is transparent and flexible, which implies it is interpretable and future improvements are achievable. 
+The beauty of generative modeling the spectrum using \textsc{gp} framework is that we are able to fully control the modeling of instrumental noise and redshift dependence uncertainties. 
+In addition, the whole framework is transparent and flexible, which implies it is interpretable and future improvements are achievable. 
 
 
 % mean function for DLA
@@ -225,12 +273,30 @@ The choice of priors over clusters ($p(z^{1:N})$) is crucial
 The clustering property of \textsc{dp} is hard to understand simply via mathematical forms above. 
 However, there's an intuitive metaphor described in \citet{Teh2006} to mimic the process of drawing samples from \textsc{dp} using a real-life example: \textit{Chinese Restaurant process} (\textsc{crp}).
 
-The name of \textsc{crp} was developed in 1980's. \textsc{crp} is a process to describe the distribution over partitions.
+The name of \textsc{crp} was developed in 1980's. 
+\textsc{crp} is a process to describe the distribution over partitions.
 
 Now, imagine this: there are infinite number of round tables in a Chinese restaurant, and there are also infinite number of seats in each round table. 
 Each customer will come to the restaurant one by one (just like sampling). 
 Let's assume the first customer choose the first table.
-Which table would be next person choose?
+Which table would next person choose?
+If every customers are friendly\footnote{There are some literatures discussed about the unfriendly situations.}, the next customer may intend to choose the round table which has more people there.
+Therefore, the probability of choose $k^{th}$ table could be proportional to the number of people $n_k$ in that round table.
+She/he may also have a small amount of probability to choose a new empty table to sit.
+
+The mathematical form of \textsc{crp} can be described as 
+\begin{equation}
+    \theta_{n+1} \mid \theta_1 ..., \theta_{n} \sim \frac{1}{\alpha + n} \left( \alpha H + \sum_{k = 1}^{m} n_k \delta_{\theta_{k}^*} \right),
+    \label{eq:crp}
+\end{equation}
+where $alpha$ is a constant and $\delta_{\theta_k^*} = 1$ only when $\theta_k^*$ is selected.
+The above equation is equivalent to \textsc{crp} in this way: 
+\begin{enumerate}
+    \item the first customer ($n = 0$): $\theta_1$ partition would be selected from a smooth distribution $H$.
+    \item the second customer ($n = 1$): $\theta_2 \mid \theta_1$ partition would be selected from either $\frac{\alpha H}{\alpha + 1}$ (a new table) or $\frac{1}{\alpha + 1}$ (the table with customer 1).
+    \item the $(n + 1)^{th}$ customer: $\theta_{n + 1} \mid \theta_n, ..., \theta_1$ would be selected from either 
+\end{enumerate}
+
 
 
 % figure: chinese restaurant

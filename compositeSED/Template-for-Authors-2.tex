@@ -7,6 +7,10 @@
 % Steps to compile: latex latex latex
 %
 % For tracking purposes => this is v1.0 - Apr. 2013
+% 
+% Suggestion: 
+% Do the figures first, and then write the stories.
+
 \documentclass{ar-1col}
 \usepackage{natbib}
 \usepackage{algorithm2e}
@@ -31,9 +35,9 @@
 \markboth{Ho}{Composite SED Clustering}
 
 % Title
-\title{Composite Spectral Energy Distribution and Bayesian Machine Learning for Spectral Data}
+\title{Composite Spectral Energy Distributions and Bayesian Machine Learning for Spectral Data}
 
-%Authors, affiliations address.
+%Authors, affiliations address./
 \author{Ming-Feng Ho$^1$
 \affil{$^1$Department of Physics and Astronomy, University of California, Riverside; email: mho026@ucr.edu}}
 
@@ -65,24 +69,79 @@ galaxies: evolution, methods: data analysis, methods: Bayesian non-parametric
 
 % Heading 1
 \section{INTRODUCTION}
-improvement of Photometry data on redshift rage 3-4.
+One fundamental dilemma in observational astronomy is that: do we want to take a spectrum or take a multi-wavelength photometric observation? 
+Taking a spectrum will give us more detailed information about the properties of the object, e.g., emission lines and absorption lines. 
+However, the exposure time of taking a spectrum is much longer than taking a multi-wavelength photometric observation. 
+
+Using multi-wavelength photometry, on the other hand, is less expensive than taking a spectrum. 
+The other advantage of multi-wavelength observations is that we are able to reach a deeper redshift and a wider spatial range.
+However, the trade-off of multi-wavelength observations is that we lose the resolution on the \textsc{sed}s of data.
+
+The dilemma here is similar to the problem of \textbf{ exploration or exploitation } situation\footnote{See Roman's slide \citep{Garnett18} \url{https://www.cse.wustl.edu/~jain/cse591-18/ftp/garnett591.pdf} or \url{https://en.wikipedia.org/wiki/Active_learning_(machine_learning)}}:
+whether you want to focus on taking accurate observations on small number of objects or your want to explore a wider and deeper area but lose the accuracy?
+Another analogy to the exploration or exploitation problem is the ``Battleship'' game\footnote{\url{https://en.wikipedia.org/wiki/Battleship_(game)}}.
+In the Battleship game, we have to destroy our enemy's ships by guessing the ship locations with a few trail shootings.
+We have to make an intelligent choice to balance exploration and exploitation to win.
+In common cases, we would start with exploring the whole area; after gaining some low-resolution knowledge, we could start to focus on the plausible regions to find our enemy's hidden ships.
+
+The game played by astronomers here is similar: should we choose to explore the space with a lower resolution by multi-wavelength photometry or exploit on a limited number of objects for taking expensive spectra?
+To make an intelligent decision, we need to know more.
+Since the budget is limited and the number of spectra we can take is also limited, gaining information from multi-wavelength photometric data before taking spectra is important.
+
+Astronomers developed techniques including UVJ color-color diagram and \textsc{sed} fitting to gain more information with solely photometric data in order to make optimal decisions.
+The color-color diagram classifies galaxies into quiescent or star-forming types; \textsc{sed} fitting estimates the properties of galaxies and redshifts (e.g., EAZY \citep{Brammer2008}) with the help of spectral energy modeling and synthetic templates built by matrix factorization \citep{Blanton2007}.
+
+One thing we can ask is: can we gain more knowledge about our targets beyond the UVJ diagram and \textsc{sed} fitting?
+Composite \textsc{sed} technique \citep{Kriek2011, Forrest2018} provides an empirical way to cluster multi-wavelength targets together based on the shape of \textsc{sed} fittings.
+
 
 
 % Heading 2
-\section{GALAXY EVOLUTION IN TERMS OF COMPOSITE SPECTRAL ENERGY DISTRIBUTIONS (SEDs)}
+\section{GALAXY EVOLUTION IN TERMS OF COMPOSITE SPECTRAL ENERGY DISTRIBUTIONS (\textsc{sed}s)}
 
 % Heading 2.1
 \subsection{Medium-Band Photometry}
 This is dummy text. 
 
+% fig: medium bands
+\begin{figure}
+    \includegraphics[width=6in, height=4in]{images/medium_bands.pdf}
+    \caption{\texttt{Fourstar} medium bands (J1, J2, J3, Hs, Hl, Ks) in \citet{Straatman2016} (highlighted as red and yellow). The choice of medium bands would increase the resolution of sampling on the \textsc{sed}.}
+\end{figure}
+
+% fig: better z_photo
+\begin{figure}
+    \includegraphics[width=6in, height=2.5in]{images/z_photo_better.pdf}
+    \caption{Sampling \textsc{sed} with or without \texttt{Fourstar} medium-band filters. With the help of \texttt{Fourstar} filters (red), the posterior distribution of photometric redshift (with \textsc{sed} fitting) is way more accurate.}
+\end{figure}
+
 % Heading 2.2
-\subsection{Composite Spectral Energy Distributions (SEDs)}
+\subsection{Composite Spectral Energy Distributions (\textsc{sed}s)}
+
+
 
 % Heading 2.2.1
-\subsubsection{Determine Redshifts using EAZY}
+% \subsubsection{Determine Redshifts using EAZY}
 
 % Heading 2.2.2
 \subsubsection{Grouping Method}
+
+
+% fig: grouping
+\begin{figure}
+    \includegraphics[width=5in, height=4in]{images/grouping.png}
+    \caption{Grouping method for composite \textsc{sed} in \citet{Forrest2018}. First, we take the observed multi-wavelength photometry. Second, de-redshift the wavelengths to rest-frame. Next, scale the flux using $a_{12}$ (see Algorithm~\ref{algorithm:grouping}). In the final panel, we get the composite \textsc{sed} based on the similarity metric $b_{12} < 0.05$.}
+    \label{fig:grouping}
+\end{figure}
+ 
+ 
+% EAZY: template
+\begin{figure}
+    \includegraphics[width=2.6in, height=2in]{images/EAZY.png}
+    \caption{EAZY \citep{Brammer2008} templates were used in fitting the \textsc{sed} of galaxies in \citet{Forrest2018}.}
+    \label{fig:EAZY}
+\end{figure}
+
 
 % grouping algorithm
 \begin{algorithm}[H]
@@ -94,36 +153,103 @@ This is dummy text.
     $ \mathbf{F}, \Lambda \leftarrow $ Multi-photometry of galaxies
     
     % rest-frame bins: determine using synthetic photometric filters
-    \tcp{define 22 rest-frame filters with equal widths between 1\,226 \AA $ < \lambda < $ 49\,580 \AA}
-    $ Bin(\mathbf{\lambda}) \leftarrow \mathrm{MAP} \mathbf{\lambda} : \mathbf{\lambda}[\log_{10}{1226}: \frac{1}{22} (\log_{10}{49580} - \log_{10}{1226}) i] $
+    \tcp{Bin: 22 rest-frame filters with equal widths between 1\,226 \AA $ < \lambda < $ 49\,580 \AA}
+    $ Bin(\mathbf{\lambda}) = \mathrm{map}: \mathbf{\lambda} \rightarrow \mathbf{\lambda}[\log_{10}{1226}: \frac{1}{22} (\log_{10}{49580} - \log_{10}{1226}) i] $
     
-    % fit with EAZY: determine redshift
-    \tcp{look through each galaxy multi-wavelength vector, d, and fit with EAZY}
-    \For{$\mathbf{f} \leftarrow \mathbf{F}$}{
-        \tcp{fit with EAZY}
+    % fit with EAZY: determine redshift, de-redshift, and Bin with rest-from filters
+    \tcp{Loop: modify each galaxy multi-wavelength flux}
+    \For{$\mathbf{f}$ in $\mathbf{F}$, $\mathbf{\lambda}$ in $\mathbf{\Lambda} $}{
+        % fitting
+        \tcp{Fit: with EAZY to get continous flux function}
         $ f_\textsc{sed}, z_{photo} \leftarrow EAZY(\mathbf{d}) $
 
-        \tcp{de-redshift using photo-z}
+        % de-redshift
+        \tcp{De-redshift: using photo-z}
+        $ \lambda_{rest} \leftarrow \lambda / (1 + z_{photo}) $
 
+        % rest-frame filters
+        \tcp{Bin: update discrete flux vector with rest-frame filters}
+        $\mathbf{F}[i, :] \leftarrow f_\textsc{sed}[Bin( \lambda_{rest} )]$
     }
 
-    \While{not at end of this document}{
-     read current\;
-     \eIf{understand}{
-      go to next section\;
-      current section becomes this one\;
-      }{
-      go back to the beginning of current section\;
-     }
+    % similarity: using fractional squared-error to compute similarity
+    % and append values to 
+    \tcp{Similarity: use squared error to calculate similarity}
+    $\mathbf{b} \leftarrow zeros(N, N)$
+    
+    \For{$\mathbf{f}_i$ in $\mathbf{F}$}{
+        \For{$\mathbf{f}_j$ in $\mathbf{F}$ if $j > i$}{
+            \tcp{calculate scale factor; $\circ$: Hadamard (elementwise) product }
+            $ a_{12} \leftarrow sum(\mathbf{f}_i \circ \mathbf{f}_j) / sum(\mathbf{f}_j^2) $
+
+            \tcp{calculate similarity}
+            $\mathbf{b}_{ij} \leftarrow ( sum( (\mathbf{f}_i - a_{12}\mathbf{f}_j)^2 ) / sum( \mathbf{f}_i^2 ) )^{1/2}$
+        }
+    }
+
+    % get analogs
+    \tcp{Get the analogues from samples with b < 0.05}
+    $ \mathrm{ind} \leftarrow argsort( sum(\mathbf{b} < 0.05).axis(1) ) $
+
+    $Composite_\textsc{sed} \leftarrow []$
+
+    \For{i in ind}{
+        
+        \tcp{find analogues}
+        $ i_{a} \leftarrow find( \mathrm{b}_i < 0.05 ) $
+
+        \If{ length$(i_{a} + i) < 19$ }{break}
+
+        $ Composite_\textsc{sed}$.append( [$i_{a} + i$] )
+        
     }
 
     % short description
     \caption{Grouping galaxies together based on \textsc{sed} shape}
+    \label{algorithm:grouping}
 \end{algorithm}
+
+
 
 % Heading 2.2.3
 \subsubsection{Classification of Galaxy Types}
 
+
+% fig: Kriek galaxies types
+\begin{figure}
+    \includegraphics[width=5in, height=5in]{images/spectral_features.pdf}
+    \caption{Three types of galaxies (red: quiescent; purple: dusty star-forming; blue: star-forming) identified in \citet{Kriek2011} using composite \textsc{sed}. Several spectroscopic features are labeled in the plot.}
+    \label{fig:kreiksed}
+\end{figure}
+
+% fig: galaxy types
+\begin{figure}
+    \includegraphics[width=5in, height=6.5in]{images/galaxy_types.png}
+    \caption{Seven galaxy types identified by visual inspecting on two features: 4\,000 break $ D(4000) $ (an indicator of age) and H$_\alpha$ equivalent width (a probe of star formation activity).}
+    \label{fig:seds}
+\end{figure}
+
+% fig: correlation SFR
+\begin{figure}
+    \includegraphics[width=6in, height=3in]{images/correlation_Ha_D4000.pdf}
+    \caption{\textbf{Left panel}: correlation between $H_\alpha$ equivalent width and $D(4000)$; \textbf{Right panel}: correlation between $H_\alpha$ equivalent width and star formation rate.}
+    \label{fig:correlation_kreik}
+\end{figure}
+
+% fig: correlation different types
+\begin{figure}
+    \includegraphics[width=6in, height=3in]{images/Forrest_Ha_D4000.pdf}
+    \caption{The correlation between $H_\alpha$ equivalent width and $D(4000)$ in \citet{Forrest2018}. The special thing in this figure is that it labeled the types of galaxies: magenta for emission line galaxies, blue for star-forming galaxies, green for transitional galaxies (because they are in green valley), yellow for post starburst, and red for quiescent galaxies. }
+    \label{fig:correlation}
+\end{figure}
+
+
+% fig: color-color diagram
+\begin{figure}
+    \includegraphics[width=5in, height=5in]{images/color-color.png}
+    \caption{Color-color diagram in \citet{Forrest2018}. \textbf{Top}: Different colors represent different galaxy types classified by composite \textsc{sed}s. A special feature of classification using composite \textsc{sed} is that we can track the population of marginal (or rare) types of galaxies on the diagram, e.g., the transitional galaxies (green) and post-starbursts (yellow). \textbf{Bottom}: The distribution of number of analogue galaxies.}
+    \label{fig:color-color}
+\end{figure}
 
 % Heading 3
 \section{BAYESIAN MACHINE LEARNING FOR CLUSTERING AND MODELING SPECTRAL DATA}

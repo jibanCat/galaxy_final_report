@@ -247,3 +247,7 @@ TSWLatexianTemp*
 # pipenv
 Pipfile
 Pipfile.lock
+
+# raw images
+*.ppm
+*.svg

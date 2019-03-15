@@ -18,14 +18,11 @@
 \setcounter{secnumdepth}{4}
 \usepackage{url}
 
-% preferred fontsize
-\newcommand{\mysize}{\fontsize{12}{14}\selectfont}
-
 % Metadata Information
 \jname{Xxxx. Xxx. Xxx. Xxx.}
 \jvol{AA}
-\jyear{YYYY}
-\doi{10.1146/((please add article doi))}
+\jyear{2019}
+\doi{10.1146/((no doi avaliable))}
 
 
 % Document starts
@@ -43,12 +40,18 @@
 
 %Abstract
 \begin{abstract}
+Extracting more information from photometric data can help astronomers to make intelligent decisions before taking the spectra.
+Multi-wavelength photometry can achieve deeper and wider areas in the space and at the same time much cheaper than spectroscopic.
+Composite \textsc{sed} method provides a new way to study high-redshift galaxies in an empirical way.
+By building composite \textsc{sed}s from grouping multi-wavelength photometric data, we can classify different galaxy types based on the spectral features shown in the composite \textsc{sed}s.
+This new grouping method is potentially useful for classifying rare galaxy populations with.
 
+We will also review two Bayesian machine learning method, Gaussian process and Dirichlet process, and the usage of Bayesian machine learning for modeling the spectral data.
 \end{abstract}
 
 %Keywords, etc.
 \begin{keywords}
-galaxies: evolution, methods: data analysis, methods: Bayesian non-parametric
+galaxies: evolution, galaxies: high-redshift, methods: data analysis, methods: Bayesian non-parametric
 \end{keywords}
 \maketitle
 
@@ -59,55 +62,65 @@ galaxies: evolution, methods: data analysis, methods: Bayesian non-parametric
 % Heading 1
 \section{INTRODUCTION}
 One fundamental dilemma in observational astronomy is that: do we want to take a spectrum or take a multi-wavelength photometric observation? 
-Taking a spectrum will give us more detailed information about the properties of the object, e.g., emission lines and absorption lines. 
+Taking a spectrum will give us more detailed information about the properties of an object, e.g., emission lines and absorption lines. 
 However, the exposure time of taking a spectrum is much longer than taking a multi-wavelength photometric observation. 
 
 Using multi-wavelength photometry, on the other hand, is less expensive than taking a spectrum. 
 The other advantage of multi-wavelength observations is that we can reach a deeper redshift and a wider spatial range.
-However, the trade-off of multi-wavelength observations is that we lose the resolution on the \textsc{sed}s of data.
+However, the trade-off of multi-wavelength observations is that we lose the resolution of the spectral features of data.
 
-The dilemma here is similar to the problem of \textbf{ exploration or exploitation } situation\footnote{See Roman's slide \citep{Garnett18} \url{https://www.cse.wustl.edu/~jain/cse591-18/ftp/garnett591.pdf} or \url{https://en.wikipedia.org/wiki/Active_learning_(machine_learning)}}:
+The dilemma here is similar to the problem of \textbf{ exploration or exploitation } situation\footnote{A dilemma situation in the active (machine) learning problems.}:
 whether you want to focus on taking accurate observations on a small number of objects or you want to explore a wider and deeper area but lose the accuracy?
 Another analogy to the exploration or exploitation problem is the ``Battleship'' game\footnote{\url{https://en.wikipedia.org/wiki/Battleship_(game)}}.
-In the Battleship game, we have to destroy our enemy's ships by guessing the ship locations with a few trail shootings.
+In the Battleship game, we have to destroy our enemy's ships by guessing the locations of ships with a few trail shootings.
 We have to make an intelligent choice to balance exploration and exploitation to win.
 In typical cases, we would start by exploring the whole area; after gaining some low-resolution knowledge, we could start to focus on the plausible regions to find our enemy's hidden ships.
 
 The game played by astronomers here is similar: should we choose to explore the space with a lower resolution by multi-wavelength photometry or exploit on a limited number of objects for taking expensive spectra?
 To make an intelligent decision, we need to know more.
-Since the budget is limited and the number of spectra we can take is also limited, gaining information from multi-wavelength photometric data before taking spectra is essential.
+Since the budget is limited and the number of spectra we can take is also limited, gaining more information from multi-wavelength photometric data before taking spectra is essential.
 
-Astronomers developed techniques including UVJ color-color diagram and \textsc{sed} fitting to gain more information with solely photometric data in order to make optimal decisions.
-The color-color diagram classifies galaxies into quiescent or star-forming types; \textsc{sed} fitting estimates the properties of galaxies and redshifts (e.g., EAZY \citep{Brammer2008}) with the help of spectral energy modeling and synthetic templates built by matrix factorization \citep{Blanton2007}.
+Astronomers developed techniques including UVJ color-color diagram and \textsc{sed} fitting to gain more information from photometric data in order to make an optimal decision.
+The color-color diagram classifies galaxies into quiescent or star-forming types; \textsc{sed} fitting estimates the properties of galaxies and redshifts (e.g., EAZY \citep{Brammer2008}) with the help of modeling of spectral energy distributions (\textsc{sed}s) and synthetic templates built by matrix factorization \citep{Blanton2007}.
+
+\begin{marginnote}
+    \entry{EAZY}: \textbf{E}azy and \textbf{A}ccurate \textbf{Z}photo from \textbf{Y}ale
+    \entry{\textsc{sed}}: Spectral Energy Distribution
+\end{marginnote}
 
 One thing we can ask is: can we gain more knowledge about our targets beyond the UVJ diagram and \textsc{sed} fitting?
 Composite \textsc{sed} technique \citep{Kriek2011, Forrest2018} provides an empirical way to cluster multi-wavelength targets together based on the shapes of \textsc{sed} fittings.
 With the advance of medium-band photometry (See Fig\ref{fig:medium_bands}), we can achieve a finer sampling on the shapes of \textsc{sed}s and gain a better set of composite \textsc{sed}s.
 
-By examining composite \textsc{sed}s, the rare populations, which are not easy to be identified in the UVJ diagram, could be classified based on the shapes of composite \textsc{sed}s.
-Since we gain more knowledge based on composite \textsc{sed}s, astronomers can make a better decision on which target is much more interesting to take a spectrum.
+By examining composite \textsc{sed}s, the rare populations, which are not easy to be identified in the UVJ diagram, could be classified based on the shapes of \textsc{sed}s.
+If we gain more knowledge about our targets by using composite \textsc{sed}s, astronomers can make a better decision on which target is much more interesting to take a spectrum.
 Usually, the marginal cases would be selected to be studied in more details\footnote{A similar technique in active learning is called ``uncertainty sampling''. In uncertainty sampling, we choose to study the most uncertain targets. By focusing on the boundary targets, we can learn faster (achieve a faster convergence). See \citet{Garnett18}.}.
 
 
 % Heading 2
 \section{GALAXY EVOLUTION IN TERMS OF COMPOSITE SPECTRAL ENERGY DISTRIBUTIONS (\textsc{sed}s)}
 
-The development of composite \textsc{sed}s came from the improvement of medium-band photometry and the advance of \textsc{sed} fittings. 
+The development of composite \textsc{sed} method came from the improvement of medium-band photometry and the advance of \textsc{sed} fittings. 
 In this section, we will first review the medium-band photometry technique.
-Also, then, we will talk about the grouping method implemented in \citep{Kriek2011, Forrest2018}.
-In the final part of this section, we will examine the classification of galaxy types via composite \textsc{sed}s in the $H_\alpha$-$D(4000)$ correlation and the color-color diagram.
+Next, we will talk about the grouping method implemented in \citet{Kriek2011, Forrest2018}.
+In the final part of this section, we will examine the classification of galaxy types via composite \textsc{sed}s using the spectral features such as $H_\alpha$ and $D(4000)$, and then we will talk about how these galaxy types are distributed on the UVJ diagram.
+
+\begin{marginnote}
+    \entry{$D(4000)$} : Balmer/4\,000 break
+    \entry{$EW_{H_\alpha}$}: the equivalent width of the $H_\alpha$ emission line 
+\end{marginnote}
 
 % Heading 2.1
 \subsection{Medium-Band Photometry at Near-IR}
 
-Accurate colors are crucial for accurate redshift estimations. 
-Without accurate redshift estimations, astronomers will be unable to achieve accurate rest-frame colors.
+The choice of photometric bands is crucial for accurate redshift estimations. 
+And without accurate redshift estimations, astronomers will be unable to achieve accurate rest-frame colors.
 
-Past deep optical surveys such as Classifying Object by Medium-Band Observations-17 (COMBO-17, \citet{Wolf2003}) and Cosmic Evolution Survey (COSMOS, \citet{Scoville2007}) achieve accurate photometric redshift accuracies with $ \sigma_{\Delta z / (1 + z_{spec})} \sim 1\% $ using medium-band photometry.
-These surveys achieve a large sample for $ z \sim 1 $; however, if we want to study high-redshift galaxies up to $ z \sim 3 $, we need to shift our filters to higher wavelength regions. 
+Past deep optical surveys such as Classifying Object by Medium-Band Observations-17 (COMBO-17, \citet{Wolf2003}) and Cosmic Evolution Survey (COSMOS, \citet{Scoville2007}) achieved accurate photometric redshift accuracies with $ \sigma_{\Delta z / (1 + z_{spec})} \sim 1\% $ using medium-band photometry.
+These surveys achieve a large sample size for $ z \sim 1 $; however, if we want to study high-redshift galaxies up to $ z \sim 3 $, we need to shift our filters to a higher wavelength region. 
 
-The prominent spectral feature such as Balmer/4\,000 break is shifted to Near-IR region at $ z \sim 1.5 $.
-To better sample the spectral features of galaxies, the NEWFIRM Medium-Band Survey (NMBS, \citet{Whitaker2011}) and the FourStar galaxy evolution survey (ZFOURGE, \citet{Straatman2016}) placed the multiple medium bands at near-IR regions (See Fig~\ref{fig:medium_bands}).
+The prominent spectral feature such as Balmer/4\,000 break is shifted to near-IR region at $ z \sim 1.5 $.
+To better sample the spectral features of high-redshift galaxies, the NEWFIRM Medium-Band Survey (NMBS, \citet{Whitaker2011}) and the FourStar galaxy evolution survey (ZFOURGE, \citet{Straatman2016}) placed multiple medium bands at near-IR regions (See Fig~\ref{fig:medium_bands}).
 Fig~\ref{fig:z_photo} shows, with medium-band filters in near-IR, \texttt{FourStar} achieved a better constraint on the posterior of the photometric redshift. 
 
 
@@ -139,18 +152,18 @@ By using a larger dataset ($\sim$ 7\,000 galaxies) than NMBS ($\sim$ 3\,500 gala
 % Heading 2.2.1
 \subsubsection{Grouping Method}
  
-The grouping approach \citet{Kriek2011} and {Forrest2018} took to construct composite \textsc{sed}s is to compute the similarities (a root-mean-squared error metric) between different multi-wavelength photometric data at rest-frame.
+The grouping approach which \citet{Kriek2011} and {Forrest2018} took to construct composite \textsc{sed}s is to compute the similarities (a root-mean-squared error metric) between different multi-wavelength photometric data at rest-frame.
 
 Before we compute the similarity, we have to move the observed photometry back to rest-frame.
-The $z$ we used to de-redshift (move to rest-frame) is estimated from \textsc{sed} template fitting \citep{Brammer2008}.
+The $z$ we used to de-redshift (move to rest-frame) is estimated from \textsc{sed} template fitting, EAZY \citep{Brammer2008}.
 After we de-redshift the observed photometry back to rest-frame, another problem arises: though we have our observed photometry data in the same wavelengths at observed wavelengths, they do not have the same rest-frame wavelengths.
-How can we compare two galaxies with fluxes at different wavelengths?
+How can we compare two galaxies with fluxes at different rest-frame wavelengths?
 
 To resolve the problem, 22 artificial rest-frame filters were designed.
 After we fit with the \textsc{sed} templates, we de-redshift the fitted \textsc{sed} back to rest-frame and bin the \textsc{sed} with 22 artificial filters.
-Therefore, the photometric data from different redshifts are comparable right now because they use the same 22 filters.
+Therefore, the photometric data from different redshifts are comparable now because they fall within the same 22 filters.
 
-After binning with rest-frame filters, we compute the similarity metric,
+After binning with the rest-frame filters, we compute the similarity metric,
 
 % similarity
 \begin{equation}
@@ -169,6 +182,11 @@ with the scale factor $a_{12}$ between different galaxies,
     \label{eq:scale}
 \end{equation}
 Basically, the scale factor $a_{12}$ helps us to shift the observed fluxes to the same average flux, and the similarity metric $b_{12}$ gives us the deviations between two different \textsc{sed} shapes.
+
+\begin{marginnote}
+    \entry{$b_{12}$}: the similarity between the \textsc{sed} shapes of two galaxies
+    \entry{$a_{12}$} : the scale factor between the average fluxes of two galaxies
+\end{marginnote}
 
 In \citet{Forrest2018}, they defined a threshold ($ b_{12} < 0.05 $) to group similar \textsc{sed} shapes. 
 We first search the galaxies with largest number of analogues (galaxies with $b_{12} < 0.05$).
@@ -267,12 +285,12 @@ We iterate this process until there is no galaxy has more than 19 analogues.
 % Heading 2.2.3
 \subsubsection{Classification of Galaxy Types}
 
-The classification of composite \textsc{sed}s is done by visually inspecting two features,
+The classification of composite \textsc{sed}s is done by visually inspecting the following two spectral features,
 
 % spectral features
 \begin{itemize}
-    \item $EW_{H_\alpha}$ : $H_\alpha$ equivalent width is an indicator for star-forming activities. Galaxies with a wider $EW_{H_\alpha}$ in their composite \textsc{sed} will have higher chance to be star-forming galaxies. In \citet{Forrest2018}, $EW_{H_\alpha} \sim 100$ \AA for star-forming galaxies. The correlation between star formation rate and the $EW_{H_\alpha}$ is shown in the right panel of the Fig~\ref{fig:correlation_kreik}.
-    \item $D(4000)$ : the Balmer/4\,000 \AA  break indicates the age of a galaxy. Older galaxies generally have higher $D(4000)$. 
+    \item $EW_{H_\alpha}$ : $H_\alpha$ equivalent width is an indicator for star-forming activities. Galaxies with a wider $EW_{H_\alpha}$ in their composite \textsc{sed} will have a higher chance to be star-forming galaxies. In \citet{Forrest2018}, $EW_{H_\alpha}$ is around 100 $\mathrm{\AA}$  for a typical star-forming galaxy. The correlation between star formation rate and the $EW_{H_\alpha}$ is shown in the right panel of the Fig~\ref{fig:correlation_kreik}.
+    \item $D(4000)$ : the Balmer/4\,000 $\mathrm{\AA}$   break indicates the age of a galaxy. Older galaxies generally have higher $D(4000)$s. 
 \end{itemize}
 
 Combine with these two features, \citet{Forrest2018} classified five galaxy types (6 if we include dusty star-forming galaxies).
@@ -282,23 +300,23 @@ In Fig~\ref{fig:correlation}, from top left to bottom right corner are emission 
 Fig~\ref{fig:color-color} shows how different types of galaxies classified by composite \textsc{sed}s are distributed on the UVJ color-color diagram.
 It is straightforward to see the composite \textsc{sed}s successfully classified the quiescent galaxies (red) and star-forming galaxies (blue).
 Moreover, we additionally classified three more galaxy types on the color-color diagram: transitional galaxies (green), post-starbursts (yellow), and emission line galaxies (purple).
-Also, these rare populations are not easy to be categorized by the UVJ color-color diagram solely.
+Also, these rare populations are not easy to be categorized by using the UVJ color-color diagram solely.
 
-In \citet{Forrest2018}, they mentioned about the loss of diversity in higher redshift regions. 
-They guessed that there were less quiescent galaxies and more post-starbursts in the high-redshift region.
+In \citet{Forrest2018}, they mentioned about the loss of diversity in the higher redshift regions. 
+Their conclusion was that there might have less quiescent galaxies and more post-starbursts in the high-redshift regions.
 
 
 % fig: Kriek galaxies types
 \begin{figure}
-    \includegraphics[width=3in, height=3in]{images/spectral_features.pdf}
+    \includegraphics[width=5in, height=5in]{images/spectral_features.pdf}
     \caption{Three types of galaxies (red: quiescent; purple: dusty star-forming; blue: star-forming) identified in \citet{Kriek2011} using composite \textsc{sed}. Several spectroscopic features are labeled in the plot.}
     \label{fig:kreiksed}
 \end{figure}
 
 % fig: galaxy types
 \begin{figure}
-    \includegraphics[width=3in, height=3.5in]{images/galaxy_types.png}
-    \caption{Seven galaxy types identified by visual inspecting on two features: 4\,000 break $ D(4000) $ (an indicator of age) and H$_\alpha$ equivalent width (a probe of star formation activity).}
+    \includegraphics[width=5in, height=6in]{images/galaxy_types.png}
+    \caption{Six galaxy types identified by visual inspecting on two features: 4\,000 break $ D(4000) $ (an indicator of age) and H$_\alpha$ equivalent width (a probe of star formation activities).}
     \label{fig:seds}
 \end{figure}
 
@@ -324,11 +342,30 @@ They guessed that there were less quiescent galaxies and more post-starbursts in
     \label{fig:color-color}
 \end{figure}
 
+\begin{marginnote}
+    \entry{ELG} : emission line galaxies 
+    \entry{SFG} : star-forming galaxies
+    \entry{(D)SFG} : dusty star-forming galaixies
+    \entry{TG} : transitional galaxies 
+    \entry{PSB} : post-starbursts
+    \entry{QG} : quiescent galaxies
+\end{marginnote}
+
+% Summary Points
+\begin{summary}[SUMMARY POINTS]
+    \begin{enumerate}
+        \item Composite \textsc{sed} is a technique to construct empirical \textsc{sed}s for a given group of galaxy type and increase the signal to noise for the spectral features.
+        \item Spectral features such as $EW_{H_\alpha}$ and $D(4000)$ are used to distinguish different types of galaxies.
+        \item Composite \textsc{sed}s are able to identify rare population of galaxies, such as transitional galaxies and post-starbursts. 
+    \end{enumerate}
+\end{summary}    
+
+
 % Heading 3
-\section{BAYESIAN MACHINE LEARNING FOR CLUSTERING AND MODELING SPECTRAL DATA}
+\section{BAYESIAN MACHINE LEARNING}
 
 Bayesian machine learning is a branch of machine learning which aims to solve machine learning problems from a Bayesian perspective. 
-Instead of optimizing the parameters of interest from data using an empirical loss function (e.g., a least-squared function), Bayesian methods build generative models to randomly sample data from parameters and try to maximize the likelihood between observed data and hidden parameters \citep{Barber2012}.
+Instead of optimizing the parameters from data using an empirical loss function (e.g., a least-squared function), Bayesian methods build generative models to randomly sample data from parameters and try to maximize the likelihood between observed data and hidden parameters \citep{Barber2012}.
 
 The difference between Bayesian statistics and Bayesian ``machine learning'' is that Bayesian ``machine learning'' is trying to approximate {\it non-linear} functions \citep{Bishop2003}. 
 After the publish of \citet{Rasmussen2005}, learning unknown complicated functions from observed data using {\it Gaussian processes} (\textsc{gp}) became popular. 
@@ -336,8 +373,8 @@ After the publish of \citet{Rasmussen2005}, learning unknown complicated functio
 % Heading 3.1
 \subsection{Modeling Spectral Data using Gaussian Processes (\textsc{gp})}
 
-A {\it Gaussian process} is a bunch of random variables, and any finite subset of these random variables is a joint Gaussian distribution \citep{Rasmussen2005}. \textsc{gp} could be a powerful tool to model any functional data (continuous data) in a non-parametric way. 
-By non-parametric, it means we use infinite many parameters to describe our function \citep{Gelman04}. \textsc{gp} could be treated as a random function (or a stochastic process) which draws samples from the n-dimensional distribution, 
+A {\it Gaussian process} is a collection of random variables with any finite subset of these random variables to be a joint Gaussian distribution \citep{Rasmussen2005}. \textsc{gp} could be a powerful tool to model any functional data (continuous data) in a non-parametric way. 
+By non-parametric, it means we use infinite many parameters to describe our function \citep{Gelman04}. \textsc{gp} could be treated as a random function (or a stochastic process) which draws samples from a n-dimensional distribution, 
 
 % draw samples from a GP
 \begin{equation}
@@ -355,7 +392,7 @@ By non-parametric, it means we use infinite many parameters to describe our func
 \end{marginnote} 
 
 The construction of a \textsc{gp} could be considered as finding the mean function ($m(\vec x)$) and a suitable covariance function ($K(\vec x, \vec x')$). 
-In normal cases, a zero mean is usually used as a prior for \textsc{gp} regressions. For $K(\vec x, \vec x')$, pre-defined covariance functions (e.g., squared potential function $\exp{(\frac{-r^2}{2 \ell^2})}$) are often been implemented. 
+In normal cases, a zero mean is usually used as a prior for \textsc{gp} regressions. For $K(\vec x, \vec x')$, pre-defined covariance functions (e.g., a squared exponential function $\exp{(\frac{-r^2}{2 \ell^2})}$) are often been implemented. 
 However, the usage of \textsc{gp} in modeling functional data will also be restricted by the intrinsic properties of the covariance functions.
 Learning a suitable covariance function is the most crucial part of machine learning in \textsc{gp}.
 
@@ -389,10 +426,10 @@ In a perspective of generative modeling, optimizing the data likelihood implies 
     \label{fig:covariance}
 \end{figure}
 
-The covariance matrix built in \citet{Garnett17} with a wavelength range from Ly$_\infty$ to Ly$\alpha$ is in Fig~\ref{fig:covariance}. 
-The scale in Fig\ref{fig:covariance} represents the strength of correlations between pairs of rest-frame wavelengths on the \textsc{qso} spectra.
+The covariance matrix built by \citet{Garnett17} is shown in Fig~\ref{fig:covariance}. 
+The scale in Fig~\ref{fig:covariance} represents the strength of correlations between pairs of rest-frame wavelengths on the \textsc{qso} spectra.
 The features of the Lyman series are distinct.
-The off-diagonal term demonstrates the correlations of pairs of corresponding emission lines.
+The off-diagonal terms demonstrate the correlations of pairs of corresponding emission lines.
 
 The mean function of \textsc{gp} modeling in \citet{Garnett17} can be simply obtained by stacking the training spectra, 
 
@@ -401,7 +438,7 @@ The mean function of \textsc{gp} modeling in \citet{Garnett17} can be simply obt
     \mu_j = \mathrm{median } (y_{ij}),
 \end{equation}
 where $y_{ij}$ are the fluxes for spectrum. Fig~\ref{fig:mean_function} shows the mean function with a range from Ly$_\infty$ to Ly$\alpha$. 
-The features emission line of the Lyman series is also visible in the figure.
+The features of emission lines on the Lyman series is also quite obvious in the Fig~\ref{fig:mean_function}.
 
 Generally, the \textsc{gp} model for spectral data could be described as
 % full model for the spectral gaussian process
@@ -411,7 +448,7 @@ Generally, the \textsc{gp} model for spectral data could be described as
 \end{equation}
 where $\mathbf{y}$ is the observed flux of the spectrum, 
 $\mathbf{\lambda}$ is the spectroscopic grids we chose to bin the flux, 
-$\mathbf{v}$ is the instrumental noise given by the observed data (it is \textsc{sdss} \textsc{qso} catalogue \citep{SDSS09} in \citet{Garnett17}), $z$ is the redshift dependence of the \textsc{gp} model, and $\omega$ is the absorption redshift dependence (it was used to model
+$\mathbf{v}$ is the instrumental noise given by the observed data (they used \textsc{sdss} \textsc{qso} catalogue \citep{SDSS09} in \citet{Garnett17}), $z$ is the redshift dependence of the \textsc{gp} model, and $\omega$ is the absorption redshift dependence (it was used to model
  Ly$\alpha$ forest in \citet{Garnett17}). 
  
 The beauty of generative modeling the spectrum using \textsc{gp} framework is that we can fully control the modeling of instrumental noise and redshift dependence uncertainties. 
@@ -438,8 +475,9 @@ Besides, the whole framework is transparent and flexible, which implies it is in
 % Heading 3.2
 \subsection{Dirichlet Processes}
 
-The \textit{Dirichlet process} \citep{Teh2006} is a Bayesian non-parametric method to model infinite mixture models and also could be used for clustering. We haven't seen any application of \textit{Dirichlet processes} (\textsc{dp}) in spctral data clustering. 
-A recent astronomical application of \textsc{dp} is building a mixture model for binary neutron stars in gravitational-wave data \citep{Pozzo2018}. 
+The \textit{Dirichlet process} \citep{Teh2006} is a Bayesian non-parametric method to model infinite mixture models and also could be used for clustering. 
+We haven't seen any application of \textit{Dirichlet processes} (\textsc{dp}) in spctral data clustering. 
+A recent astronomical application of \textsc{dp} is building a mixture model for binary neutron stars in the gravitational-wave data \citep{Pozzo2018}. 
 Since we expect the application of \textsc{dp} in the clustering of spectral data is achievable in future; we decided to roughly review the basic concept of \textsc{dp} here.
 
 The \textsc{dp} is a stochastic process which is often used to model mixture models. 
@@ -455,7 +493,7 @@ the clustering memberships could be described by the following conditional proba
     \label{eq:indicator}
 \end{equation}
 where $p(z^{1:N})$ gives the priors over each cluster and $\theta$ describe the parameters of the cluster model. 
-The choice of priors over clusters ($p(z^{1:N})$) is crucial
+The choice of priors over clusters $p(z^{1:N}$ is crucial.
 
 
 % Dirichlet PGM
@@ -470,7 +508,7 @@ The choice of priors over clusters ($p(z^{1:N})$) is crucial
 \subsubsection{Chinese Restaurant Process}
 
 The clustering property of \textsc{dp} is hard to understand simply via mathematical forms above. 
-However, there's an intuitive metaphor described in \citet{Teh2006} to mimic the process of drawing samples from \textsc{dp} using a real-life example: \textit{Chinese Restaurant process} (\textsc{crp}).
+However, there's an intuitive metaphor described in \citet{Teh2006} to mimic the process of drawing samples from a \textsc{dp} using a real-life example: \textit{Chinese Restaurant process} (\textsc{crp}).
 
 The name of \textsc{crp} was developed in the 1980s. 
 \textsc{crp} is a process to describe the distribution over partitions.
@@ -481,20 +519,41 @@ Let us assume the first customer choose the first table.
 Which table would next person choose?
 If every customer are friendly\footnote{There are some literature discussed the unfriendly situations.}, the next customer may intend to choose the round table which has more people there.
 Therefore, the probability of choosing $k^{th}$ table could be proportional to the number of people $n_k$ in that round table.
-She/he may also have a small amount of probability to choose a new empty table to sit.
+Nevertheless, she/he may also have a small amount of probability to choose a new empty table to sit depends on her/his mood of that day.
 
 The mathematical form of \textsc{crp} can be described as 
 \begin{equation}
     \theta_{n+1} \mid \theta_1 ..., \theta_{n} \sim \frac{1}{\alpha + n} \left( \alpha H + \sum_{k = 1}^{m} n_k \delta_{\theta_{k}^*} \right),
     \label{eq:crp}
 \end{equation}
-where $alpha$ is a constant and $\delta_{\theta_k^*} = 1$ only when $\theta_k^*$ is selected.
+where $\alpha$ is a constant and $\delta_{\theta_k^*} = 1$ only when $\theta_k^*$ is selected.
 The above equation is equivalent to \textsc{crp} in this way: 
 \begin{enumerate}
-    \item the first customer ($n = 0$): $\theta_1$ partition would be selected from a smooth distribution $H$.
-    \item the second customer ($n = 1$): $\theta_2 \mid \theta_1$ partition would be selected from either $\frac{\alpha H}{\alpha + 1}$ (a new table) or $\frac{1}{\alpha + 1}$ (the table with customer 1).
-    \item the $(n + 1)^{th}$ customer: $\theta_{n + 1} \mid \theta_n, ..., \theta_1$ would be selected from either $\frac{\alpha H}{n + \alpha}$ or $ \frac{\sum_{k = 1}^{m} n_k \delta_{\theta_k^*}}{\alpha + n} $.
+    \item The first customer ($n = 0$): $\theta_1$ partition would be selected from a smooth distribution $H$.
+    \item The second customer ($n = 1$): $\theta_2 \mid \theta_1$ partition would be selected from either $\frac{\alpha H}{\alpha + 1}$ (a new table) or $\frac{1}{\alpha + 1}$ (the table with customer 1).
+    \item The $(n + 1)^{th}$ customer: $\theta_{n + 1} \mid \theta_n, ..., \theta_1$ would be selected from either $\frac{\alpha H}{n + \alpha}$ or $ \frac{\sum_{k = 1}^{m} n_k \delta_{\theta_k^*}}{\alpha + n} $.
 \end{enumerate}
+
+
+In the above \textsc{crp} scheme, the number of clusters will growth in logarithmic scale.
+See Fig~\ref{fig:crp} for a cartoon version of \textsc{crp}.
+Circles represent the round tables we have in the Chinese restaurant and the numbers represent the customers.
+For the scheme of the 10-customer situation in Fig~\ref{fig:crp}, the joint probability is
+
+\begin{equation}
+    Pr(z_1, ..., z_{10}) = 
+        \frac{\alpha}{\alpha}
+        \frac{\alpha}{1 + \alpha}
+        \frac{1}{2 + \alpha}
+        \frac{\alpha}{3 + \alpha}
+        \frac{1}{4 + \alpha}
+        \frac{1}{5 + \alpha}
+        \frac{2}{6 + \alpha}
+        \frac{2}{7 + \alpha}
+        \frac{2}{8 + \alpha}
+        \frac{3}{9 + \alpha}.
+    \label{eq:crp}
+\end{equation}
 
 
 % figure: chinese restaurant
@@ -505,23 +564,15 @@ The above equation is equivalent to \textsc{crp} in this way:
 \end{figure}
 
 
-
-% Summary Points
-\begin{summary}[SUMMARY POINTS]
-    \begin{enumerate}
-        \item Composite \textsc{sed} is a technique to construct empirical \textsc{sed}s for a given group of galaxy type and increase the signal to noise for the spectral features.
-        \item Spectral features such as $EW_{H_\alpha}$ and $D(4000)$ are used to distinguish different types of galaxies.
-        \item Composite \textsc{sed}s are able to identify rare population of galaxies, such as transitional galaxies and post-starbursts. 
-    \end{enumerate}
-\end{summary}    
-
-
-
 % Future Issues
 \begin{issues}[FUTURE ISSUES]
 \begin{enumerate}
-    \item {\bf Classification of galaxy types }: the current way to label galaxy types in the composite \textsc{sed}s is to visually inspect the spectral features such as the equivalent width of $H_\alpha$ and the Balmer/4\,000 break. It is the curse of every unsupervised machine learning problem which is you have to use human eyes to label the data. The easiest way is to use \citet{Forrest2018} as a training set, and train a supervised classifier on labeled data in \citet{Forrest2018}. And then, apply the supervised classifier to a new dataset.  
-    \item {\bf Building \textsc{dp} on top of \textsc{gp} }: one way to do clustering functional data is to build \textsc{dp} on top of \textsc{gp}. We can first sample the partitions of cluster centers from \textsc{dp}, and use them as priors for the \textsc{gp}. One issue is that if we want to learn the covariance and the mean functions from the data, we need to have a training set with a finite number of classified types of galaxies. In this way, \textsc{dp} would not be unable to have an infinite number of cluster centers.
+    \item {\bf Classification of galaxy types }: the current way to label galaxy types in the composite \textsc{sed}s is to visually inspect the spectral features such as the equivalent width of $H_\alpha$ and the Balmer/4\,000 break. It is the curse of every unsupervised machine learning problems because you can not avoid to use human eyes to label the data. 
+    The easiest way is to use \citet{Forrest2018} as a training set, and train a supervised classifier on labeled data and use that classifier to predict the labels in the new dataset. 
+    \item {\bf Building \textsc{dp} on top of \textsc{gp} }: one way to do clustering functional data is to build \textsc{dp} on top of \textsc{gp}. 
+    We can first sample the partitions of cluster centers from \textsc{dp}, and use them as priors for the \textsc{gp}. 
+    One issue is that if we want to learn the covariance function and the mean function from the data, we need to have a labeled training set with a finite number of classified types of galaxies. 
+    ]In this way, \textsc{dp} would be unable to have an infinite number of cluster centers.
 \end{enumerate}
 \end{issues}
 
@@ -533,21 +584,14 @@ The above equation is equivalent to \textsc{crp} in this way:
 % Acknowledgements
 \section*{ACKNOWLEDGMENTS}
 
-Thank the instructor Prof. Wilson gives us this chance to practice writing a long paper. 
-Thank Ben for helpful discussion on the topic of composite \textsc{sed}. 
+Thank the instructor for giving us this chance to practice writing a really long paper. 
+It's fun because I took this chance to build my own \LaTeX environment on my new Linux laptop.
+Thank Ben for the helpful discussions on the topic of composite \textsc{sed}.
 Thank Prof. Bird and Prof. Garnett for helping me to learn Bayesian machine learning.
 
 % References
 \bibliographystyle{ar-style2}
 \bibliography{sample}
-% \begin{thebibliography}{00}
-
-% \bibitem[Acevedo \& Fitzjarrald(2001)]{Acevedo:01}
-% Acevedo O, Fitzjarrald D. 2001.
-% \textit{J. Atmos. Sci.} 58:2650--67
-
-
-% \end{thebibliography}
 
 
 \end{document}

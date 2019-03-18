@@ -36,15 +36,15 @@
 
 %Authors, affiliations address./
 \author{Ming-Feng Ho$^1$
-\affil{$^1$Department of Physics and Astronomy, University of California, Riverside; email: mho026@ucr.edu}}
+\affil{$^1$Department of Physics and Astronomy, University of California, Riverside; email: mho026@ucr.edu; website: \url{https://github.com/jibanCat} }}
 
 %Abstract
 \begin{abstract}
 Extracting more information from photometric data can help astronomers to make intelligent decisions before taking the spectra.
-Multi-wavelength photometry can achieve deeper and wider areas in the space and at the same time much cheaper than spectroscopic.
-Composite \textsc{sed} method provides a new way to study high-redshift galaxies in an empirical way.
+Multi-wavelength photometry can achieve deeper and more extensive areas in the space and at the same time much cheaper than spectroscopic.
+Composite \textsc{sed} method provides a new way to study high-redshift galaxies empirically.
 By building composite \textsc{sed}s from grouping multi-wavelength photometric data, we can classify different galaxy types based on the spectral features shown in the composite \textsc{sed}s.
-This new grouping method is potentially useful for classifying rare galaxy populations with.
+This new grouping method is potentially useful for classifying rare galaxy populations with photometric data solely.
 
 We will also review two Bayesian machine learning method, Gaussian process and Dirichlet process, and the usage of Bayesian machine learning for modeling the spectral data.
 \end{abstract}
@@ -119,7 +119,7 @@ And without accurate redshift estimations, astronomers will be unable to achieve
 Past deep optical surveys such as Classifying Object by Medium-Band Observations-17 (COMBO-17, \citet{Wolf2003}) and Cosmic Evolution Survey (COSMOS, \citet{Scoville2007}) achieved accurate photometric redshift accuracies with $ \sigma_{\Delta z / (1 + z_{spec})} \sim 1\% $ using medium-band photometry.
 These surveys achieve a large sample size for $ z \sim 1 $; however, if we want to study high-redshift galaxies up to $ z \sim 3 $, we need to shift our filters to a higher wavelength region. 
 
-The prominent spectral feature such as Balmer/4\,000 break is shifted to near-IR region at $ z \sim 1.5 $.
+The prominent spectral feature such as Balmer/4\,000 break is shifted to the near-IR region at $ z \sim 1.5 $.
 To better sample the spectral features of high-redshift galaxies, the NEWFIRM Medium-Band Survey (NMBS, \citet{Whitaker2011}) and the FourStar galaxy evolution survey (ZFOURGE, \citet{Straatman2016}) placed multiple medium bands at near-IR regions (See Fig~\ref{fig:medium_bands}).
 Fig~\ref{fig:z_photo} shows, with medium-band filters in near-IR, \texttt{FourStar} achieved a better constraint on the posterior of the photometric redshift. 
 
@@ -374,7 +374,7 @@ After the publish of \citet{Rasmussen2005}, learning unknown complicated functio
 \subsection{Modeling Spectral Data using Gaussian Processes (\textsc{gp})}
 
 A {\it Gaussian process} is a collection of random variables with any finite subset of these random variables to be a joint Gaussian distribution \citep{Rasmussen2005}. \textsc{gp} could be a powerful tool to model any functional data (continuous data) in a non-parametric way. 
-By non-parametric, it means we use infinite many parameters to describe our function \citep{Gelman04}. \textsc{gp} could be treated as a random function (or a stochastic process) which draws samples from a n-dimensional distribution, 
+By non-parametric, it means we use infinite many parameters to describe our function \citep{Gelman04}. \textsc{gp} could be treated as a random function (or a stochastic process) which draws samples from an n-dimensional distribution, 
 
 % draw samples from a GP
 \begin{equation}
@@ -517,7 +517,7 @@ Now, imagine this: there is an infinite number of round tables in a Chinese rest
 Each customer will come to the restaurant one by one (just like sampling). 
 Let us assume the first customer choose the first table.
 Which table would next person choose?
-If every customer are friendly\footnote{There are some literature discussed the unfriendly situations.}, the next customer may intend to choose the round table which has more people there.
+If every customer is friendly\footnote{There are some literature discussed the unfriendly situations.}, the next customer may intend to choose the round table which has more people there.
 Therefore, the probability of choosing $k^{th}$ table could be proportional to the number of people $n_k$ in that round table.
 Nevertheless, she/he may also have a small amount of probability to choose a new empty table to sit depends on her/his mood of that day.
 
@@ -567,7 +567,7 @@ For the scheme of the 10-customer situation in Fig~\ref{fig:crp}, the joint prob
 % Future Issues
 \begin{issues}[FUTURE ISSUES]
 \begin{enumerate}
-    \item {\bf Classification of galaxy types }: the current way to label galaxy types in the composite \textsc{sed}s is to visually inspect the spectral features such as the equivalent width of $H_\alpha$ and the Balmer/4\,000 break. It is the curse of every unsupervised machine learning problems because you can not avoid to use human eyes to label the data. 
+    \item {\bf Classification of galaxy types }: the current way to label galaxy types in the composite \textsc{sed}s is to visually inspect the spectral features such as the equivalent width of $H_\alpha$ and the Balmer/4\,000 break. It is the curse of every unsupervised machine learning problems because you can not avoid using human eyes to label the data. 
     The easiest way is to use \citet{Forrest2018} as a training set, and train a supervised classifier on labeled data and use that classifier to predict the labels in the new dataset. 
     \item {\bf Building \textsc{dp} on top of \textsc{gp} }: one way to do clustering functional data is to build \textsc{dp} on top of \textsc{gp}. 
     We can first sample the partitions of cluster centers from \textsc{dp}, and use them as priors for the \textsc{gp}. 
@@ -584,7 +584,7 @@ For the scheme of the 10-customer situation in Fig~\ref{fig:crp}, the joint prob
 % Acknowledgements
 \section*{ACKNOWLEDGMENTS}
 
-Thank the instructor for giving us this chance to practice writing a really long paper. 
+Thank the instructor Prof. Wilson for giving us this chance to practice writing a really long paper. 
 It's fun because I took this chance to build my own \LaTeX environment on my new Linux laptop.
 Thank Ben for the helpful discussions on the topic of composite \textsc{sed}.
 Thank Prof. Bird and Prof. Garnett for helping me to learn Bayesian machine learning.
